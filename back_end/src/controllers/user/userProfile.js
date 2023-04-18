@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const {authGuard} = require("../../middleware/verification");
 
 router.post('/create', async (req, res) => {
   res.json({msg: 'create my profile'})

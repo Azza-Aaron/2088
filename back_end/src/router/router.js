@@ -7,13 +7,8 @@ const userNotifications = require('../controllers/user/userNotifications')
 const session = require("express-session");
 
 router.use('/user', user)
+router.use(authGuard)
 router.use('/user/profile', userProfile)
 router.use('/user/notifications', userNotifications)
-
-router.get('/test', async (req, res) => {
-  console.log('reached')
-  res.json({msg: "router test reached"})
-  res.status(200)
-})
 
 module.exports = router
