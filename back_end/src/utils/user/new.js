@@ -3,11 +3,16 @@ const {saltHash} = require("../bcrypt/hashPassword")
 const moment = require("moment");
 const {client} = require("../../dataBase/index.js")
 const {newUserQuery} = require("../../model/user.js")
+const validator = require('validator')
 
 const testUserInput = async (request) => {
   try{
     if(!moment(request.dob, 'DD/MM/YYYY').isValid()){
       console.log('not a date')
+      return false
+    }
+    if(!validator.isEmail(request.email)){
+      console.log('no valid email')
       return false
     }
     await userSchema.validate(request, { abortEarly: false });
