@@ -1,17 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const {authGuard} = require("../../middleware/verification");
-const bcrypt = require('bcrypt')
-
-async function saltHash(password) {
-  const salt = await bcrypt.genSalt(10)
-  return bcrypt.hash(password, salt)
-}
+const {testUserInput, createNewUser} = require('../../utils/user/new')
 
 router.post('/create', async (req, res) => {
-  //const hashedPassword = await saltHash(req.body.password)
-  console.log('creating user ')
-  res.json({msg: 'create'})
+  const user = await testUserInput(req.body)
+  if(!user){
+    res.json({msg: 'invalid entry'})
+    res.status(400)
+    return
+  }
+  console.log('creating user ', user)
+  const id = await createNewUser(user)
+  res.json({msg: 'create', id: id})
   res.status(501)
 })
 

@@ -20,6 +20,9 @@
     "pg": "^8.10.0",
     "prettier": "^2.8.4",
     "randomstring": "^1.2.3",
-    "moment": "^2.29.4"
+    "moment": "^2.29.4",
+    "yup": "^1.1.1",
+    "yup-password": "^0.2.2",
+    "validator": "^13.9.0"
   }
 }

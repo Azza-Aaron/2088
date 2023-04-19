@@ -4,12 +4,14 @@ const createUser = `
 CREATE TABLE IF NOT EXISTS "user"
 (
   id SERIAL PRIMARY KEY,
-  email VARCHAR(255),
-  password VARCHAR(100),
-  first_name VARCHAR(25),
-  last_name VARCHAR(25),
+  email VARCHAR(100),
+  password VARCHAR(255),
+  first_name VARCHAR(50),
+  last_name VARCHAR(50),
   dob VARCHAR(25),
-  rank VARCHAR(25)
+  rank VARCHAR(25),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 )`;
 
 const userAdditionalData = `
@@ -32,17 +34,6 @@ CREATE TABLE IF NOT EXISTS "user_profile"
         REFERENCES "user"(id)
 )`
 
-const userSecurity = `
-CREATE TABLE IF NOT EXISTS "security"
-(
-    user_id INT,
-    login_attempts VARCHAR(25),
-    last_login_region VARCHAR(50),
-    CONSTRAINT fk_user
-        FOREIGN KEY(user_id)
-            REFERENCES "user"(id)
-)`
-
 const userNotifications = `
 CREATE TABLE IF NOT EXISTS "user_notifications"
 (
@@ -54,14 +45,31 @@ CREATE TABLE IF NOT EXISTS "user_notifications"
             REFERENCES "user"(id)
 )`
 
+const createTimeStampFunction = `
+CREATE OR REPLACE FUNCTION trigger_set_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;`
+
+const createTrigger = `
+CREATE OR REPLACE TRIGGER set_timestamp
+BEFORE UPDATE ON "user"
+FOR EACH ROW
+EXECUTE PROCEDURE trigger_set_timestamp();
+`
+
 const initiateDB = async (client) => {
   const promises = []
   try {
     await client.query(createUser)
     const additionalData = client.query(userAdditionalData)
-    const security = client.query(userSecurity)
     const userNotify = client.query(userNotifications)
-    promises.push(additionalData, security, userNotify)
+    const addFunction = client.query(createTimeStampFunction)
+    const addTrigger = client.query(createTrigger)
+    promises.push(additionalData, userNotify, addFunction, addTrigger)
     await Promise.all(promises)
     return true
   } catch (e) {
