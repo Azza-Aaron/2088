@@ -1,19 +1,24 @@
 const express = require('express');
 const router = express.Router();
 const {authGuard} = require("../../middleware/verification");
-const {testUserInput, createNewUser} = require('../../utils/user/new')
+const {testNewEmail, testUserInput, createNewUser} = require('../../utils/user/new')
 
 router.post('/create', async (req, res) => {
+  const emailExists = await testNewEmail(req.body)
+  if(emailExists){
+    res.json({msg: 'user already exists'})
+    res.status(400)
+    return
+  }
   const user = await testUserInput(req.body)
   if(!user){
     res.json({msg: 'invalid entry'})
     res.status(400)
     return
   }
-  console.log('creating user ', user)
   const id = await createNewUser(user)
   res.json({msg: 'create', id: id})
-  res.status(501)
+  res.status(200)
 })
 
 router.post('/login', async (req, res) => {

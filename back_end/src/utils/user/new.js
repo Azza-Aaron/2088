@@ -2,19 +2,16 @@ const {userSchema} = require ('../schema/user')
 const {saltHash} = require("../bcrypt/hashPassword")
 const moment = require("moment");
 const {client} = require("../../dataBase/index.js")
-const {newUserQuery} = require("../../model/user.js")
+const {newUserQuery, emailAvailableQuery} = require("../../model/user.js")
 const validator = require('validator')
+
+const testNewEmail = async (request) => {
+  const availableEmail = await client.query(emailAvailableQuery([request.email]))
+  return availableEmail.rowCount;
+}
 
 const testUserInput = async (request) => {
   try{
-    if(!moment(request.dob, 'DD/MM/YYYY').isValid()){
-      console.log('not a date')
-      return false
-    }
-    if(!validator.isEmail(request.email)){
-      console.log('no valid email')
-      return false
-    }
     await userSchema.validate(request, { abortEarly: false });
     console.log('schema valid')
     const password = await saltHash(request.password)
@@ -28,7 +25,6 @@ const testUserInput = async (request) => {
 const createNewUser = async (user) => {
   try {
     const response = await client.query(newUserQuery(user))
-    console.log(response)
     if(!response.rowCount){
       return false
     }
@@ -41,5 +37,6 @@ const createNewUser = async (user) => {
 
 module.exports = {
   testUserInput,
-  createNewUser
+  createNewUser,
+  testNewEmail
 }

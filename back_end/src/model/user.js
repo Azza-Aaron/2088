@@ -1,5 +1,12 @@
 
 
+const emailAvailableQuery = (email) => {
+  return{
+    text: `SELECT id FROM public."user" WHERE email = $1`,
+    values: email
+  }
+}
+
 const newUserQuery = (user) => {
   return{
     text: `INSERT INTO public."user" (first_name, last_name, dob, email, password)
@@ -10,5 +17,6 @@ const newUserQuery = (user) => {
 }
 
 module.exports = {
-  newUserQuery
+  newUserQuery,
+  emailAvailableQuery
 }
